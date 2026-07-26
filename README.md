@@ -1,16 +1,12 @@
-# Aussie AI v1.2
+# Aussie AI v1.3
 
-A simple GitHub Pages app: ask a question and receive a dry Australian-style answer.
+Major overhaul.
 
-## Changes
-- One question box and one answer card
-- Removed departments, achievements and dashboard clutter
-- Rewritten humour based on dry understatement, mock seriousness and practical Australian phrasing
-- Added a plain advice line beneath each joke
-- Added Another answer
-- Prioritises Australian and likely male device voices when available
+- Minimal single-purpose interface
+- Removed subject, assurance, reference number, copy, share, departments and service-record elements
+- Added compound-intent matching so combinations such as `goon + funeral` receive a relevant answer
+- Added a dedicated funeral/wake context
+- Kept only Ask, Another answer, Read it and voice input
+- Voice selector still uses device voices only
 
-## Voice limitation
-A static GitHub Pages site can only use voices installed and exposed by the device. A natural Australian neural voice requires a small backend and a text-to-speech provider.
-
-Upload all files to the repository root and commit to `main`.
+Upload every file in this ZIP to the repository root and commit to `main`.

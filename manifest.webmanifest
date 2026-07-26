@@ -1,12 +1,12 @@
 {
   "name": "Aussie AI",
   "short_name": "Aussie AI",
-  "description": "Ask a question. Get the Australian answer.",
+  "description": "Ask a question. Get a dry Australian answer.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f7f5ef",
-  "theme_color": "#06243f",
+  "background_color": "#f4f1ea",
+  "theme_color": "#072a45",
   "icons": [
     {
       "src": "./icon.svg",
