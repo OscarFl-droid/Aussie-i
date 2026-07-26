@@ -1,274 +1,35 @@
-import { generateResponse, PERSONAS, LOADING_MESSAGES } from "./engine.js";
-
-const $ = selector => document.querySelector(selector);
-const state = JSON.parse(localStorage.getItem("australian-intelligence-state") || "{}");
-state.questionCount ??= 0;
-state.achievements ??= [];
-state.personality ??= "tradie";
-state.autoSpeak ??= false;
-state.soundEffects ??= true;
-state.voiceRate ??= 1;
-
-const achievements = [
-  { id: "first", icon: "🏆", name: "First Stubby", description: "Ask your first question.", test: s => s.questionCount >= 1 },
-  { id: "ten", icon: "🦘", name: "Regular Customer", description: "Process 10 enquiries.", test: s => s.questionCount >= 10 },
-  { id: "vegemite", icon: "🍞", name: "National Treasure", description: "Ask about Vegemite.", test: (_, q) => /vegemite/i.test(q) },
-  { id: "bunnings", icon: "🔨", name: "Bunnings Expert", description: "Invoke the sacred hardware warehouse.", test: (_, q) => /bunnings/i.test(q) },
-  { id: "emu", icon: "🪶", name: "Classified Historian", description: "Ask about the Emu War.", test: (_, q) => /emu war/i.test(q) },
-  { id: "dropbear", icon: "🐨", name: "Drop Bear Survivor", description: "Receive critical wildlife advice.", test: (_, q) => /drop bear/i.test(q) },
-  { id: "allPersonas", icon: "🎭", name: "Department Hopper", description: "Use every personality mode.", test: s => Object.keys(PERSONAS).every(p => (s.personasUsed || []).includes(p)) }
+import{generateResponse,PERSONAS,LOADING_MESSAGES}from"./engine.js";
+const $=s=>document.querySelector(s);
+const state=JSON.parse(localStorage.getItem("australian-intelligence-state")||"{}");
+Object.assign(state,{questionCount:state.questionCount??0,achievements:state.achievements??[],personality:state.personality??"tradie",autoSpeak:state.autoSpeak??false,soundEffects:state.soundEffects??true,voiceRate:state.voiceRate??.94,voiceURI:state.voiceURI??""});
+const achievements=[
+{id:"first",icon:"🏆",name:"First Determination",description:"Submit your first enquiry.",test:s=>s.questionCount>=1},
+{id:"ten",icon:"🦘",name:"Frequent Correspondent",description:"Submit 10 enquiries.",test:s=>s.questionCount>=10},
+{id:"vegemite",icon:"🍞",name:"National Spread",description:"Ask about Vegemite.",test:(_,q)=>/vegemite/i.test(q)},
+{id:"bunnings",icon:"🔨",name:"Infrastructure Consultant",description:"Invoke Bunnings.",test:(_,q)=>/bunnings/i.test(q)},
+{id:"emu",icon:"🪶",name:"Restricted Historian",description:"Ask about the Emu War.",test:(_,q)=>/emu war/i.test(q)},
+{id:"all",icon:"🎭",name:"Whole-of-Government",description:"Use every response division.",test:s=>Object.keys(PERSONAS).every(p=>(s.personasUsed||[]).includes(p))}
 ];
-
-const questionForm = $("#questionForm");
-const question = $("#question");
-const answer = $("#answer");
-const answerContent = $("#answerContent");
-const loading = $("#loading");
-const loadingText = $("#loadingText");
-const personality = $("#personality");
-const modeStatus = $("#modeStatus");
-const micButton = $("#micButton");
-const settingsDialog = $("#settingsDialog");
-const achievementsDialog = $("#achievementsDialog");
-const toast = $("#toast");
-
-let currentAnswer = answer.textContent;
-let deferredInstallPrompt = null;
-let recognition = null;
-
-function saveState() {
-  localStorage.setItem("australian-intelligence-state", JSON.stringify(state));
-}
-
-function updateUI() {
-  personality.value = state.personality;
-  modeStatus.textContent = `Personality: ${PERSONAS[state.personality].label}`;
-  $("#questionCount").textContent = state.questionCount;
-  $("#achievementCount").textContent = state.achievements.length;
-  $("#autoSpeak").checked = state.autoSpeak;
-  $("#soundEffects").checked = state.soundEffects;
-  $("#voiceRate").value = state.voiceRate;
-  renderAchievements();
-}
-
-function showToast(message) {
-  toast.textContent = message;
-  toast.classList.remove("hidden");
-  clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => toast.classList.add("hidden"), 2600);
-}
-
-function renderAchievements() {
-  const list = $("#achievementList");
-  list.replaceChildren();
-  for (const item of achievements) {
-    const unlocked = state.achievements.includes(item.id);
-    const row = document.createElement("div");
-    row.className = `achievement${unlocked ? "" : " locked"}`;
-    row.innerHTML = `
-      <span class="achievement-icon">${unlocked ? item.icon : "🔒"}</span>
-      <span><strong>${item.name}</strong><small>${item.description}</small></span>`;
-    list.append(row);
-  }
-}
-
-function unlockAchievements(q) {
-  state.personasUsed ??= [];
-  if (!state.personasUsed.includes(state.personality)) state.personasUsed.push(state.personality);
-
-  const newlyUnlocked = achievements.filter(item =>
-    !state.achievements.includes(item.id) && item.test(state, q)
-  );
-
-  for (const item of newlyUnlocked) {
-    state.achievements.push(item.id);
-    showToast(`Achievement unlocked: ${item.name}`);
-  }
-}
-
-function playDepartmentPing() {
-  if (!state.soundEffects) return;
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return;
-  const ctx = new AudioContext();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.frequency.value = 523.25;
-  gain.gain.setValueAtTime(.045, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .16);
-  osc.connect(gain).connect(ctx.destination);
-  osc.start();
-  osc.stop(ctx.currentTime + .17);
-}
-
-function selectAustralianVoice() {
-  const voices = speechSynthesis.getVoices();
-  return voices.find(v => /^en-AU$/i.test(v.lang))
-      || voices.find(v => /austral/i.test(v.name))
-      || voices.find(v => /^en-/i.test(v.lang))
-      || voices[0];
-}
-
-function speak(text = currentAnswer) {
-  if (!("speechSynthesis" in window)) {
-    showToast("Speech synthesis is not supported in this browser.");
-    return;
-  }
-  speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-AU";
-  utterance.rate = Number(state.voiceRate);
-  const voice = selectAustralianVoice();
-  if (voice) utterance.voice = voice;
-  speechSynthesis.speak(utterance);
-}
-
-async function processQuestion(text) {
-  const clean = text.trim();
-  if (!clean) {
-    question.reportValidity();
-    return;
-  }
-
-  answerContent.classList.add("hidden");
-  loading.classList.remove("hidden");
-  loadingText.textContent = LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
-
-  await new Promise(resolve => setTimeout(resolve, 650 + Math.random() * 850));
-
-  const result = generateResponse(clean, state.personality);
-  currentAnswer = result.text;
-  answer.textContent = result.text;
-  $("#categoryBadge").textContent = `Category: ${result.category}`;
-  $("#confidenceBadge").textContent = `Confidence: ${result.confidence}`;
-
-  state.questionCount += 1;
-  unlockAchievements(clean);
-  saveState();
-  updateUI();
-
-  loading.classList.add("hidden");
-  answerContent.classList.remove("hidden");
-  playDepartmentPing();
-
-  if (result.effect === "shake") {
-    document.body.animate(
-      [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(0)" }],
-      { duration: 380, iterations: 2 }
-    );
-  }
-  if (result.effect === "classified") {
-    answer.animate([{ filter: "blur(5px)" }, { filter: "blur(0)" }], { duration: 700 });
-  }
-
-  if (state.autoSpeak && !result.serious) speak();
-}
-
-questionForm.addEventListener("submit", event => {
-  event.preventDefault();
-  processQuestion(question.value);
-});
-
-$("#randomButton").addEventListener("click", () => {
-  const samples = [
-    "How many boxes of goon do I bring to a dinner party?",
-    "What's the best car for a burnout?",
-    "Should I send this email to my boss?",
-    "How much Vegemite is too much?",
-    "Tell me about the Emu War.",
-    "There's a spider in the house.",
-    "How do I fix the wifi?"
-  ];
-  question.value = samples[Math.floor(Math.random() * samples.length)];
-  processQuestion(question.value);
-});
-
-personality.addEventListener("change", () => {
-  state.personality = personality.value;
-  state.personasUsed ??= [];
-  if (!state.personasUsed.includes(state.personality)) state.personasUsed.push(state.personality);
-  unlockAchievements("");
-  saveState();
-  updateUI();
-});
-
-$("#speakButton").addEventListener("click", () => speak());
-$("#copyButton").addEventListener("click", async () => {
-  await navigator.clipboard.writeText(currentAnswer);
-  showToast("Copied to clipboard.");
-});
-$("#shareButton").addEventListener("click", async () => {
-  const payload = { title: "Australian Intelligence", text: currentAnswer };
-  if (navigator.share) await navigator.share(payload);
-  else {
-    await navigator.clipboard.writeText(currentAnswer);
-    showToast("Sharing unavailable; copied instead.");
-  }
-});
-
-$("#settingsButton").addEventListener("click", () => settingsDialog.showModal());
-$("#achievementsButton").addEventListener("click", () => achievementsDialog.showModal());
-
-$("#autoSpeak").addEventListener("change", e => { state.autoSpeak = e.target.checked; saveState(); });
-$("#soundEffects").addEventListener("change", e => { state.soundEffects = e.target.checked; saveState(); });
-$("#voiceRate").addEventListener("input", e => { state.voiceRate = Number(e.target.value); saveState(); });
-$("#resetButton").addEventListener("click", () => {
-  localStorage.removeItem("australian-intelligence-state");
-  location.reload();
-});
-
-function setupRecognition() {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) {
-    micButton.disabled = true;
-    micButton.title = "Voice input is unavailable in this browser";
-    return;
-  }
-
-  recognition = new Recognition();
-  recognition.lang = "en-AU";
-  recognition.interimResults = true;
-  recognition.continuous = false;
-
-  recognition.onstart = () => {
-    micButton.classList.add("listening");
-    micButton.setAttribute("aria-label", "Stop voice input");
-    showToast("Listening...");
-  };
-  recognition.onend = () => {
-    micButton.classList.remove("listening");
-    micButton.setAttribute("aria-label", "Start voice input");
-  };
-  recognition.onerror = event => showToast(`Voice input error: ${event.error}`);
-  recognition.onresult = event => {
-    const transcript = Array.from(event.results).map(r => r[0].transcript).join("");
-    question.value = transcript;
-    if (event.results[event.results.length - 1].isFinal) processQuestion(transcript);
-  };
-
-  micButton.addEventListener("click", () => {
-    if (micButton.classList.contains("listening")) recognition.stop();
-    else recognition.start();
-  });
-}
-
-window.addEventListener("beforeinstallprompt", event => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  $("#installButton").classList.remove("hidden");
-});
-$("#installButton").addEventListener("click", async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-  $("#installButton").classList.add("hidden");
-});
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
-}
-
-speechSynthesis?.addEventListener?.("voiceschanged", () => {});
-setupRecognition();
-updateUI();
+let currentAnswer=$("#answer").textContent,deferredInstallPrompt=null,recognition=null,voices=[];
+function save(){localStorage.setItem("australian-intelligence-state",JSON.stringify(state))}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.remove("hidden");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.add("hidden"),2600)}
+function renderAchievements(){const list=$("#achievementList");list.replaceChildren();for(const a of achievements){const unlocked=state.achievements.includes(a.id),row=document.createElement("div");row.className=`achievement${unlocked?"":" locked"}`;row.innerHTML=`<span class="achievement-icon">${unlocked?a.icon:"🔒"}</span><span><strong>${a.name}</strong><small>${a.description}</small></span>`;list.append(row)}}
+function unlock(q){state.personasUsed??=[];if(!state.personasUsed.includes(state.personality))state.personasUsed.push(state.personality);for(const a of achievements){if(!state.achievements.includes(a.id)&&a.test(state,q)){state.achievements.push(a.id);toast(`Service medal awarded: ${a.name}`)}}}
+function update(){ $("#personality").value=state.personality;$("#personaDescription").textContent=PERSONAS[state.personality].description;$("#questionCount").textContent=state.questionCount;$("#achievementCount").textContent=state.achievements.length;$("#autoSpeak").checked=state.autoSpeak;$("#soundEffects").checked=state.soundEffects;$("#voiceRate").value=state.voiceRate;renderAchievements();updateVoiceBadge()}
+function populateVoices(){voices=speechSynthesis.getVoices();const sel=$("#voiceSelect"),current=state.voiceURI;sel.replaceChildren();const sorted=[...voices].sort((a,b)=>(a.lang==="en-AU"?-1:0)-(b.lang==="en-AU"?-1:0)||a.lang.localeCompare(b.lang));for(const v of sorted){const o=document.createElement("option");o.value=v.voiceURI;o.textContent=`${v.name} — ${v.lang}${v.default?" (default)":""}`;sel.append(o)}if(current&&voices.some(v=>v.voiceURI===current))sel.value=current;else{const preferred=voices.find(v=>v.lang==="en-AU")||voices.find(v=>/^en-/i.test(v.lang))||voices[0];if(preferred){state.voiceURI=preferred.voiceURI;sel.value=preferred.voiceURI;save()}}updateVoiceBadge()}
+function chosenVoice(){return voices.find(v=>v.voiceURI===state.voiceURI)||voices.find(v=>v.lang==="en-AU")||voices[0]}
+function updateVoiceBadge(){const v=chosenVoice();$("#voiceBadge").textContent=`Voice: ${v?v.name:"Device default"}`}
+function speak(text=currentAnswer){if(!("speechSynthesis"in window)){toast("Speech synthesis is unavailable.");return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text),v=chosenVoice();u.lang=v?.lang||"en-AU";u.rate=Number(state.voiceRate);u.pitch=.92;if(v)u.voice=v;speechSynthesis.speak(u)}
+function ping(){if(!state.soundEffects)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;const c=new AC,o=c.createOscillator(),g=c.createGain();o.frequency.value=440;g.gain.setValueAtTime(.035,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.13);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.14)}
+async function processQuestion(text){const clean=text.trim();if(!clean){$("#question").reportValidity();return}$("#answerContent").classList.add("hidden");$("#loading").classList.remove("hidden");$("#loadingText").textContent=LOADING_MESSAGES[Math.floor(Math.random()*LOADING_MESSAGES.length)];await new Promise(r=>setTimeout(r,650+Math.random()*650));const result=generateResponse(clean,state.personality);currentAnswer=result.text;$("#answer").textContent=result.text;$("#categoryBadge").textContent=`Subject: ${result.category}`;$("#confidenceBadge").textContent=`Assurance: ${result.confidence}`;state.questionCount++;unlock(clean);save();update();$("#referenceNumber").textContent=`Reference AI-${String(Date.now()).slice(-6)}`;$("#loading").classList.add("hidden");$("#answerContent").classList.remove("hidden");ping();if(result.effect==="shake")document.body.animate([{transform:"translateX(0)"},{transform:"translateX(-7px)"},{transform:"translateX(7px)"},{transform:"translateX(0)"}],{duration:350,iterations:2});if(result.effect==="classified")$("#answer").animate([{filter:"blur(5px)"},{filter:"blur(0)"}],{duration:700});if(state.autoSpeak&&!result.serious)speak()}
+$("#questionForm").addEventListener("submit",e=>{e.preventDefault();processQuestion($("#question").value)});
+$("#randomButton").addEventListener("click",()=>{const q=["Do I need to bring anything to the barbecue?","Should I send this email to my boss?","How much Vegemite is too much?","Tell me about the Emu War.","There is a spider in the house.","How do I fix the wifi?","Should I buy it because it is on sale?"];$("#question").value=q[Math.floor(Math.random()*q.length)]});
+$("#personality").addEventListener("change",e=>{state.personality=e.target.value;unlock("");save();update()});
+$("#speakButton").onclick=()=>speak();$("#copyButton").onclick=async()=>{await navigator.clipboard.writeText(currentAnswer);toast("Response copied.")};$("#shareButton").onclick=async()=>{if(navigator.share)await navigator.share({title:"Australian Intelligence",text:currentAnswer});else{await navigator.clipboard.writeText(currentAnswer);toast("Sharing unavailable; response copied.")}};
+$("#settingsButton").onclick=()=>{$("#settingsDialog").showModal();populateVoices()};$("#achievementsButton").onclick=()=>$("#achievementsDialog").showModal();
+$("#autoSpeak").onchange=e=>{state.autoSpeak=e.target.checked;save()};$("#soundEffects").onchange=e=>{state.soundEffects=e.target.checked;save()};$("#voiceRate").oninput=e=>{state.voiceRate=Number(e.target.value);save()};$("#voiceSelect").onchange=e=>{state.voiceURI=e.target.value;save();updateVoiceBadge()};$("#testVoiceButton").onclick=()=>speak("G'day. This is the selected departmental voice. Results may vary depending on what your phone has installed.");$("#resetButton").onclick=()=>{localStorage.removeItem("australian-intelligence-state");location.reload()};
+function recognitionSetup(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){$("#micButton").disabled=true;$("#micButton").textContent="Voice input unavailable";return}recognition=new R;recognition.lang="en-AU";recognition.interimResults=true;recognition.onstart=()=>{$("#micButton").textContent="■ Stop listening";toast("Listening…")};recognition.onend=()=>$("#micButton").textContent="🎙 Speak question";recognition.onerror=e=>toast(`Voice input: ${e.error}`);recognition.onresult=e=>{const t=[...e.results].map(r=>r[0].transcript).join("");$("#question").value=t;if(e.results[e.results.length-1].isFinal)processQuestion(t)};$("#micButton").onclick=()=>recognition.stop?($("#micButton").textContent.includes("Stop")?recognition.stop():recognition.start()):null}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;$("#installButton").classList.remove("hidden")});$("#installButton").onclick=async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;$("#installButton").classList.add("hidden")};
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+if("speechSynthesis"in window){speechSynthesis.onvoiceschanged=populateVoices;populateVoices()}
+recognitionSetup();update();

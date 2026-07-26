@@ -3,132 +3,199 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#062d22">
-  <meta name="description" content="Australian Intelligence: not artificial, just Australian. A parody voice-enabled web app.">
+  <meta name="theme-color" content="#001f3f">
+  <meta name="description" content="Australian Intelligence: not artificial, just Australian.">
   <title>Australian Intelligence</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <a class="skip-link" href="#question">Skip to question</a>
+  <a class="skip-link" href="#question">Skip to main content</a>
 
-  <header class="masthead">
-    <div class="crest" aria-hidden="true">AI</div>
-    <div>
-      <p class="eyebrow">COMMONWEALTH-ISH DIGITAL SERVICES</p>
-      <h1>Australian Intelligence</h1>
-      <p class="tagline">Not artificial. Just Australian.</p>
+  <div class="gov-ribbon">
+    <div class="page-width ribbon-inner">
+      <span class="flag-mark" aria-hidden="true">✦</span>
+      <span>An Australian Government–ish service</span>
+      <span class="parody-pill">PARODY</span>
     </div>
-    <button id="settingsButton" class="icon-button" aria-label="Open settings" title="Settings">⚙</button>
+  </div>
+
+  <header class="agency-header">
+    <div class="page-width agency-inner">
+      <a class="brand" href="./" aria-label="Australian Intelligence home">
+        <svg class="arms" viewBox="0 0 150 96" aria-hidden="true">
+          <path d="M75 5 89 22l22-5-4 23 19 12-18 14 6 22-23-3-16 17-16-17-23 3 6-22-18-14 19-12-4-23 22 5z" fill="#d7a928"/>
+          <path d="M75 18v57M49 42h52M57 27l36 32M93 27 57 59" stroke="#001f3f" stroke-width="4"/>
+          <path d="M21 68c12-18 24-20 38-8M129 68c-12-18-24-20-38-8" fill="none" stroke="#d7a928" stroke-width="6" stroke-linecap="round"/>
+          <text x="75" y="91" text-anchor="middle" font-size="15" font-weight="800" fill="#001f3f">YEAH • NAH</text>
+        </svg>
+        <span>
+          <small>Australian Government</small>
+          <strong>Department of Australian Intelligence</strong>
+        </span>
+      </a>
+      <button id="settingsButton" class="header-button" aria-label="Open settings">Settings</button>
+    </div>
   </header>
 
-  <main class="shell">
-    <section class="status-bar" aria-label="System status">
-      <span><i class="status-dot"></i> Department operational</span>
-      <span id="modeStatus">Personality: Tradie</span>
-    </section>
+  <nav class="service-nav" aria-label="Primary">
+    <div class="page-width nav-inner">
+      <a href="#ask">Ask the Department</a>
+      <a href="#officer">Officer on duty</a>
+      <a href="#record">Service record</a>
+      <span class="status"><i></i> Operational</span>
+    </div>
+  </nav>
 
-    <section class="hero card">
-      <div class="stamp">OFFICIAL-LOOKING PARODY</div>
-      <p class="intro">Ask a question. The Department will consult several mates, one servo attendant and, where necessary, a bloke named Damo.</p>
-
-      <form id="questionForm">
-        <label for="question">Your question</label>
-        <div class="input-row">
-          <textarea id="question" rows="3" maxlength="500" placeholder="e.g. How many boxes of goon do I bring to a dinner party?" required></textarea>
-          <button id="micButton" type="button" class="mic-button" aria-label="Start voice input" title="Voice input">🎙</button>
+  <main>
+    <section class="hero">
+      <div class="page-width hero-grid">
+        <div>
+          <p class="kicker">OFFICIAL PUBLIC SERVICE</p>
+          <h1>Australian Intelligence</h1>
+          <p class="lead">Not artificial. Just Australian.</p>
+          <p class="hero-copy">Submit a question for assessment by a rotating panel of tradies, aunties, public servants, bush oracles and former footy coaches.</p>
         </div>
-        <div class="form-actions">
-          <button id="submitButton" class="primary" type="submit">Ask Australian Intelligence</button>
-          <button id="randomButton" class="secondary" type="button">Surprise me</button>
-        </div>
-      </form>
-    </section>
-
-    <section id="answerCard" class="answer card" aria-live="polite" aria-atomic="true">
-      <div id="loading" class="loading hidden">
-        <div class="spinner" aria-hidden="true"></div>
-        <p id="loadingText">Consulting the bloke at Bunnings...</p>
-      </div>
-
-      <div id="answerContent">
-        <p class="answer-label">OFFICIAL RESPONSE</p>
-        <blockquote id="answer">Yeah nah. Ask us something first, mate.</blockquote>
-        <div class="answer-meta">
-          <span id="categoryBadge">Category: General</span>
-          <span id="confidenceBadge">Confidence: Questionable</span>
-        </div>
-        <div class="answer-actions">
-          <button id="speakButton" class="secondary" type="button">🔊 Read it out</button>
-          <button id="copyButton" class="secondary" type="button">Copy</button>
-          <button id="shareButton" class="secondary" type="button">Share</button>
+        <div class="classification">
+          <span>SECURITY CLASSIFICATION</span>
+          <strong>UNOFFICIAL</strong>
+          <small>Handle with common sense</small>
         </div>
       </div>
     </section>
 
-    <section class="grid">
-      <article class="card compact">
-        <h2>Departmental personality</h2>
-        <label for="personality">Select officer on duty</label>
-        <select id="personality">
-          <option value="tradie">Tradie</option>
-          <option value="bush">Bush Oracle</option>
-          <option value="bogan">Bogan Philosopher</option>
-          <option value="grandma">Aussie Grandma</option>
-          <option value="publicServant">Public Servant</option>
-          <option value="footyCoach">Retired Footy Coach</option>
-        </select>
-      </article>
+    <section id="ask" class="page-width content">
+      <div class="notice">
+        <strong>Before you begin</strong>
+        <p>This service provides culturally calibrated nonsense. It does not replace emergency, medical, legal or financial advice.</p>
+      </div>
 
-      <article class="card compact">
-        <h2>Service record</h2>
-        <p><strong id="questionCount">0</strong> enquiries processed</p>
-        <p><strong id="achievementCount">0</strong> achievements unlocked</p>
-        <button id="achievementsButton" class="secondary" type="button">View achievements</button>
-      </article>
+      <div class="layout">
+        <section class="panel primary-panel">
+          <div class="section-number">1</div>
+          <div>
+            <h2>Ask Australian Intelligence</h2>
+            <p class="muted">Use plain English. Overexplaining may be referred to a committee.</p>
+          </div>
+
+          <form id="questionForm">
+            <label for="question">Your question <span class="required">Required</span></label>
+            <textarea id="question" rows="5" maxlength="500" placeholder="For example: Do I need to bring anything to the barbecue?" required></textarea>
+
+            <div class="input-tools">
+              <button id="micButton" type="button" class="button secondary" aria-label="Start voice input">🎙 Speak question</button>
+              <button id="randomButton" type="button" class="button text-button">Give me an example</button>
+            </div>
+
+            <button id="submitButton" class="button primary" type="submit">Submit enquiry</button>
+          </form>
+        </section>
+
+        <aside class="side-stack">
+          <section id="officer" class="panel compact">
+            <h2>Officer on duty</h2>
+            <label for="personality">Response division</label>
+            <select id="personality">
+              <option value="tradie">Practical Works Division</option>
+              <option value="bush">Regional Wisdom Unit</option>
+              <option value="bogan">Lifestyle Compliance Branch</option>
+              <option value="grandma">Family Standards Authority</option>
+              <option value="publicServant">Administrative Response Office</option>
+              <option value="footyCoach">Performance and Ticker Commission</option>
+            </select>
+            <p id="personaDescription" class="small muted"></p>
+          </section>
+
+          <section id="record" class="panel compact">
+            <h2>Service record</h2>
+            <dl class="stats">
+              <div><dt>Enquiries</dt><dd id="questionCount">0</dd></div>
+              <div><dt>Achievements</dt><dd id="achievementCount">0</dd></div>
+            </dl>
+            <button id="achievementsButton" class="button secondary full" type="button">View service medals</button>
+          </section>
+        </aside>
+      </div>
+
+      <section id="answerCard" class="response-panel" aria-live="polite" aria-atomic="true">
+        <div class="response-heading">
+          <div>
+            <p class="kicker">DEPARTMENTAL DETERMINATION</p>
+            <h2>Official response</h2>
+          </div>
+          <span id="referenceNumber">Reference AI-000000</span>
+        </div>
+
+        <div id="loading" class="loading hidden">
+          <div class="progress" aria-hidden="true"><span></span></div>
+          <p id="loadingText">Consulting people with strong opinions...</p>
+        </div>
+
+        <div id="answerContent">
+          <blockquote id="answer">No determination has been issued. Submit an enquiry above.</blockquote>
+          <div class="meta-row">
+            <span id="categoryBadge">Subject: General</span>
+            <span id="confidenceBadge">Assurance: Pending</span>
+            <span id="voiceBadge">Voice: Device default</span>
+          </div>
+          <div class="response-actions">
+            <button id="speakButton" class="button secondary" type="button">🔊 Read response</button>
+            <button id="copyButton" class="button secondary" type="button">Copy</button>
+            <button id="shareButton" class="button secondary" type="button">Share</button>
+          </div>
+        </div>
+      </section>
     </section>
-
-    <p class="disclaimer">This is a comedy application and is not affiliated with the Australian Government. Serious, medical, legal, emergency and safety questions are redirected to appropriate real-world help.</p>
   </main>
+
+  <footer>
+    <div class="page-width footer-grid">
+      <div>
+        <strong>Department of Australian Intelligence</strong>
+        <p>Not affiliated with the Australian Government, ASIO, Bunnings, the AFL, your uncle, or any organised group of kookaburras.</p>
+      </div>
+      <div>
+        <strong>Service status</strong>
+        <p>Operational, subject to smoko.</p>
+      </div>
+    </div>
+  </footer>
 
   <dialog id="settingsDialog">
     <form method="dialog">
       <div class="dialog-head">
-        <h2>Settings</h2>
-        <button class="icon-button" value="cancel" aria-label="Close settings">✕</button>
+        <h2>Service settings</h2>
+        <button class="close-button" value="cancel" aria-label="Close">✕</button>
       </div>
 
-      <label class="toggle">
-        <input id="autoSpeak" type="checkbox">
-        <span>Automatically speak replies</span>
-      </label>
+      <label for="voiceSelect">Available device voice</label>
+      <select id="voiceSelect"></select>
+      <p class="small muted">Voices are supplied by your device. Install additional English (Australia) voices in iOS accessibility or spoken-content settings for more options.</p>
 
-      <label class="toggle">
-        <input id="soundEffects" type="checkbox" checked>
-        <span>Departmental sound effects</span>
-      </label>
+      <label class="toggle"><input id="autoSpeak" type="checkbox"><span>Read responses automatically</span></label>
+      <label class="toggle"><input id="soundEffects" type="checkbox" checked><span>Departmental sound effects</span></label>
 
       <label for="voiceRate">Speech rate</label>
-      <input id="voiceRate" type="range" min="0.75" max="1.35" value="1" step="0.05">
+      <input id="voiceRate" type="range" min="0.75" max="1.25" value="0.94" step="0.05">
 
-      <button id="installButton" class="primary hidden" type="button">Install app</button>
-      <button id="resetButton" class="danger" type="button">Reset local data</button>
+      <button id="testVoiceButton" class="button secondary full" type="button">Test selected voice</button>
+      <button id="installButton" class="button primary full hidden" type="button">Install application</button>
+      <button id="resetButton" class="button danger full" type="button">Reset local data</button>
     </form>
   </dialog>
 
   <dialog id="achievementsDialog">
     <form method="dialog">
       <div class="dialog-head">
-        <h2>Achievements</h2>
-        <button class="icon-button" value="cancel" aria-label="Close achievements">✕</button>
+        <h2>Service medals</h2>
+        <button class="close-button" value="cancel" aria-label="Close">✕</button>
       </div>
       <div id="achievementList" class="achievement-list"></div>
     </form>
   </dialog>
 
   <div id="toast" class="toast hidden" role="status"></div>
-
   <script type="module" src="./app.js"></script>
 </body>
 </html>
