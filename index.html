@@ -1,201 +1,49 @@
 <!doctype html>
 <html lang="en-AU">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#001f3f">
-  <meta name="description" content="Australian Intelligence: not artificial, just Australian.">
-  <title>Australian Intelligence</title>
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06243f">
+<title>Aussie AI</title>
+<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <a class="skip-link" href="#question">Skip to main content</a>
+<main class="shell">
+<header class="masthead">
+<div class="crest" aria-hidden="true">★</div>
+<div><p class="eyebrow">AUSTRALIAN INTELLIGENCE</p><h1>Aussie AI</h1><p class="tagline">Ask a question. Get the Australian answer.</p></div>
+<button id="settingsButton" class="icon-button" aria-label="Voice settings">⚙</button>
+</header>
 
-  <div class="gov-ribbon">
-    <div class="page-width ribbon-inner">
-      <span class="flag-mark" aria-hidden="true">✦</span>
-      <span>An Australian Government–ish service</span>
-      <span class="parody-pill">PARODY</span>
-    </div>
-  </div>
+<section class="ask-card">
+<label for="question">What do you want to know?</label>
+<textarea id="question" rows="5" maxlength="500" placeholder="Should I send this email to my boss?"></textarea>
+<div class="actions"><button id="micButton" class="button secondary" type="button">🎙 Speak</button><button id="askButton" class="button primary" type="button">Ask Aussie AI</button></div>
+</section>
 
-  <header class="agency-header">
-    <div class="page-width agency-inner">
-      <a class="brand" href="./" aria-label="Australian Intelligence home">
-        <svg class="arms" viewBox="0 0 150 96" aria-hidden="true">
-          <path d="M75 5 89 22l22-5-4 23 19 12-18 14 6 22-23-3-16 17-16-17-23 3 6-22-18-14 19-12-4-23 22 5z" fill="#d7a928"/>
-          <path d="M75 18v57M49 42h52M57 27l36 32M93 27 57 59" stroke="#001f3f" stroke-width="4"/>
-          <path d="M21 68c12-18 24-20 38-8M129 68c-12-18-24-20-38-8" fill="none" stroke="#d7a928" stroke-width="6" stroke-linecap="round"/>
-          <text x="75" y="91" text-anchor="middle" font-size="15" font-weight="800" fill="#001f3f">YEAH • NAH</text>
-        </svg>
-        <span>
-          <small>Australian Government</small>
-          <strong>Department of Australian Intelligence</strong>
-        </span>
-      </a>
-      <button id="settingsButton" class="header-button" aria-label="Open settings">Settings</button>
-    </div>
-  </header>
+<section class="answer-card" aria-live="polite">
+<div id="loading" class="loading hidden"><span></span><p id="loadingText">Checking with someone’s uncle...</p></div>
+<div id="answerContent">
+<p class="answer-label">AUSTRALIAN DETERMINATION</p>
+<blockquote id="answer">Go on then. Ask something.</blockquote>
+<p id="plainAnswer" class="plain-answer"></p>
+<div class="answer-actions">
+<button id="againButton" class="button secondary" type="button">Another answer</button>
+<button id="speakButton" class="button secondary" type="button">🔊 Read it</button>
+<button id="shareButton" class="button secondary" type="button">Share</button>
+</div></div>
+</section>
+<p class="disclaimer">Parody. Not government advice. Not even particularly organised advice.</p>
+</main>
 
-  <nav class="service-nav" aria-label="Primary">
-    <div class="page-width nav-inner">
-      <a href="#ask">Ask the Department</a>
-      <a href="#officer">Officer on duty</a>
-      <a href="#record">Service record</a>
-      <span class="status"><i></i> Operational</span>
-    </div>
-  </nav>
-
-  <main>
-    <section class="hero">
-      <div class="page-width hero-grid">
-        <div>
-          <p class="kicker">OFFICIAL PUBLIC SERVICE</p>
-          <h1>Australian Intelligence</h1>
-          <p class="lead">Not artificial. Just Australian.</p>
-          <p class="hero-copy">Submit a question for assessment by a rotating panel of tradies, aunties, public servants, bush oracles and former footy coaches.</p>
-        </div>
-        <div class="classification">
-          <span>SECURITY CLASSIFICATION</span>
-          <strong>UNOFFICIAL</strong>
-          <small>Handle with common sense</small>
-        </div>
-      </div>
-    </section>
-
-    <section id="ask" class="page-width content">
-      <div class="notice">
-        <strong>Before you begin</strong>
-        <p>This service provides culturally calibrated nonsense. It does not replace emergency, medical, legal or financial advice.</p>
-      </div>
-
-      <div class="layout">
-        <section class="panel primary-panel">
-          <div class="section-number">1</div>
-          <div>
-            <h2>Ask Australian Intelligence</h2>
-            <p class="muted">Use plain English. Overexplaining may be referred to a committee.</p>
-          </div>
-
-          <form id="questionForm">
-            <label for="question">Your question <span class="required">Required</span></label>
-            <textarea id="question" rows="5" maxlength="500" placeholder="For example: Do I need to bring anything to the barbecue?" required></textarea>
-
-            <div class="input-tools">
-              <button id="micButton" type="button" class="button secondary" aria-label="Start voice input">🎙 Speak question</button>
-              <button id="randomButton" type="button" class="button text-button">Give me an example</button>
-            </div>
-
-            <button id="submitButton" class="button primary" type="submit">Submit enquiry</button>
-          </form>
-        </section>
-
-        <aside class="side-stack">
-          <section id="officer" class="panel compact">
-            <h2>Officer on duty</h2>
-            <label for="personality">Response division</label>
-            <select id="personality">
-              <option value="tradie">Practical Works Division</option>
-              <option value="bush">Regional Wisdom Unit</option>
-              <option value="bogan">Lifestyle Compliance Branch</option>
-              <option value="grandma">Family Standards Authority</option>
-              <option value="publicServant">Administrative Response Office</option>
-              <option value="footyCoach">Performance and Ticker Commission</option>
-            </select>
-            <p id="personaDescription" class="small muted"></p>
-          </section>
-
-          <section id="record" class="panel compact">
-            <h2>Service record</h2>
-            <dl class="stats">
-              <div><dt>Enquiries</dt><dd id="questionCount">0</dd></div>
-              <div><dt>Achievements</dt><dd id="achievementCount">0</dd></div>
-            </dl>
-            <button id="achievementsButton" class="button secondary full" type="button">View service medals</button>
-          </section>
-        </aside>
-      </div>
-
-      <section id="answerCard" class="response-panel" aria-live="polite" aria-atomic="true">
-        <div class="response-heading">
-          <div>
-            <p class="kicker">DEPARTMENTAL DETERMINATION</p>
-            <h2>Official response</h2>
-          </div>
-          <span id="referenceNumber">Reference AI-000000</span>
-        </div>
-
-        <div id="loading" class="loading hidden">
-          <div class="progress" aria-hidden="true"><span></span></div>
-          <p id="loadingText">Consulting people with strong opinions...</p>
-        </div>
-
-        <div id="answerContent">
-          <blockquote id="answer">No determination has been issued. Submit an enquiry above.</blockquote>
-          <div class="meta-row">
-            <span id="categoryBadge">Subject: General</span>
-            <span id="confidenceBadge">Assurance: Pending</span>
-            <span id="voiceBadge">Voice: Device default</span>
-          </div>
-          <div class="response-actions">
-            <button id="speakButton" class="button secondary" type="button">🔊 Read response</button>
-            <button id="copyButton" class="button secondary" type="button">Copy</button>
-            <button id="shareButton" class="button secondary" type="button">Share</button>
-          </div>
-        </div>
-      </section>
-    </section>
-  </main>
-
-  <footer>
-    <div class="page-width footer-grid">
-      <div>
-        <strong>Department of Australian Intelligence</strong>
-        <p>Not affiliated with the Australian Government, ASIO, Bunnings, the AFL, your uncle, or any organised group of kookaburras.</p>
-      </div>
-      <div>
-        <strong>Service status</strong>
-        <p>Operational, subject to smoko.</p>
-      </div>
-    </div>
-  </footer>
-
-  <dialog id="settingsDialog">
-    <form method="dialog">
-      <div class="dialog-head">
-        <h2>Service settings</h2>
-        <button class="close-button" value="cancel" aria-label="Close">✕</button>
-      </div>
-
-      <label for="voiceSelect">Available device voice</label>
-      <select id="voiceSelect"></select>
-      <p class="small muted">Voices are supplied by your device. Install additional English (Australia) voices in iOS accessibility or spoken-content settings for more options.</p>
-
-      <label class="toggle"><input id="autoSpeak" type="checkbox"><span>Read responses automatically</span></label>
-      <label class="toggle"><input id="soundEffects" type="checkbox" checked><span>Departmental sound effects</span></label>
-
-      <label for="voiceRate">Speech rate</label>
-      <input id="voiceRate" type="range" min="0.75" max="1.25" value="0.94" step="0.05">
-
-      <button id="testVoiceButton" class="button secondary full" type="button">Test selected voice</button>
-      <button id="installButton" class="button primary full hidden" type="button">Install application</button>
-      <button id="resetButton" class="button danger full" type="button">Reset local data</button>
-    </form>
-  </dialog>
-
-  <dialog id="achievementsDialog">
-    <form method="dialog">
-      <div class="dialog-head">
-        <h2>Service medals</h2>
-        <button class="close-button" value="cancel" aria-label="Close">✕</button>
-      </div>
-      <div id="achievementList" class="achievement-list"></div>
-    </form>
-  </dialog>
-
-  <div id="toast" class="toast hidden" role="status"></div>
-  <script type="module" src="./app.js"></script>
-</body>
-</html>
+<dialog id="settingsDialog"><form method="dialog">
+<div class="dialog-head"><h2>Voice settings</h2><button class="close-button" value="cancel" aria-label="Close">✕</button></div>
+<label for="voiceSelect">Voice available on this device</label><select id="voiceSelect"></select>
+<label for="voiceRate">Speed</label><input id="voiceRate" type="range" min=".75" max="1.15" step=".05" value=".9">
+<label for="voicePitch">Pitch</label><input id="voicePitch" type="range" min=".75" max="1.15" step=".05" value=".9">
+<button id="testVoiceButton" class="button secondary full" type="button">Test this voice</button>
+<p class="voice-note">The browser can only use voices installed on your phone. A natural Australian voice needs a hosted neural voice service rather than GitHub Pages alone.</p>
+</form></dialog>
+<div id="toast" class="toast hidden" role="status"></div>
+<script type="module" src="./app.js"></script>
+</body></html>

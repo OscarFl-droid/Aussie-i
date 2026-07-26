@@ -1,4 +1,4 @@
-const CACHE = "australian-intelligence-v1.1";
+const CACHE = "aussie-ai-v1.2";
 const ASSETS = [
   "./",
   "./index.html",
